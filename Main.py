@@ -86,13 +86,17 @@ class StockTrackerApp:
         stock_symbol = ASSETS[self.selected_stock.get()]
         sp500 = yf.Ticker(stock_symbol)
 
-        data = sp500.history(period="2d")
+        data = sp500.history(period="3d")
 
-        if len(data) < 2:
+        if len(data) < 3:
             return None, None, None, None
 
-        prev_close = data["Close"].iloc[-1]
-        prev_close_yesterday = data["Close"].iloc[-2]
+        prev_close = data["Close"].iloc[-2]
+        prev_close_yesterday = data["Close"].iloc[-3]
+
+        # Obtener las fechas correspondientes
+        prev_close_date = data.index[-2].strftime('%Y-%m-%d')
+        prev_close_yesterday_date = data.index[-3].strftime('%Y-%m-%d')
 
         current_data = sp500.history(period="1d", interval="1m")
         current_price = current_data["Close"].iloc[-1] if not current_data.empty else prev_close
@@ -111,8 +115,8 @@ class StockTrackerApp:
             color_yesterday = "green" if change_yesterday > 0 else "red"
 
             text = f"💰 {self.selected_stock.get()} {current_price:.2f} USD"
-            textYesterdayChange = f"📊 Hoy: {change_today:.2f}%"
-            textToday = f"📉 Ayer: {change_yesterday:.2f}%"
+            textToday = f"📊 Hoy: {change_today:.2f}%"
+            textYesterdayChange = f"📉 Ayer: {change_yesterday:.2f}%"
 
             self.stock_label.config(text=text)
             self.yesterday_changes.config(text=textYesterdayChange, fg=color_yesterday)
